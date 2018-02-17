@@ -6,7 +6,7 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/02/17 19:51:49 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/02/17 20:06:37 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,10 +14,10 @@ NAME = troll_server
 BIN = ../$(NAME)
 
 CC_FLAGS = -Wall -Werror -Wextra
-CC_LIB = -I includes -I libft
-LD_FLAGS = -L libft -lft
+CC_LIB = -I includes -I ../libft
+LD_FLAGS = -L ../libft -lft
 
-LIBFT = libft/libft.a
+LIBFT = ../libft/libft.a
 
 INCLUDES = includes/server.h \
 		../includes/troll.h
