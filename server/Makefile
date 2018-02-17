@@ -6,11 +6,12 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/02/17 04:12:41 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/02/17 19:51:49 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = troll_server
+BIN = ../$(NAME)
 
 CC_FLAGS = -Wall -Werror -Wextra
 CC_LIB = -I includes -I libft
@@ -32,15 +33,15 @@ OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 PROJTEXT = \033[1;36m$(NAME): \033[0;39m
 
-all: $(NAME)
+all: $(BIN)
 
 $(LIBFT): force
 	@ make -C $(dir $(LIBFT))
 
-$(NAME): $(LIBFT) $(OBJS) $(INCLUDES)
+$(BIN): $(LIBFT) $(OBJS) $(INCLUDES)
 	@ printf "\033[K$(PROJTEXT)Compiling\n"
 	@ printf "$(PROJTEXT)Linking\n"
-	@ gcc -o $(NAME) $(LD_FLAGS) $(OBJS)
+	@ gcc -o $(BIN) $(LD_FLAGS) $(OBJS)
 	@ printf "$(PROJTEXT)\033[1;32mProgram built at $(NAME)\033[0;39m\n"
 
 noflags:
@@ -70,7 +71,7 @@ clean:
 
 fclean: clean
 	@ make fclean -C $(dir $(LIBFT))
-	@ rm -f $(NAME)
+	@ rm -f $(BIN)
 	@ printf "$(PROJTEXT)Removed $(NAME)\n"
 
 re: fclean all

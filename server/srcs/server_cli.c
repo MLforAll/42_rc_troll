@@ -6,7 +6,7 @@
 /*   By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/17 00:53:17 by kdumarai          #+#    #+#             */
-/*   Updated: 2018/02/17 04:44:05 by kdumarai         ###   ########.fr       */
+/*   Updated: 2018/02/17 17:17:01 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ int				main(int ac, char **av, char **env)
 		return (ft_returnmsg("Err bind", STDERR_FILENO, EXIT_FAILURE));
 	while (TRUE)
 	{
-		listen(sockfd, 5);
+		listen(sockfd, 1);
 		len = sizeof(t_sockaddr_in);
 		if ((newsockfd = accept(sockfd, (t_sockaddr*)&client_addr, &len)) == -1
 			|| !get_admin_message(sockfd, newsockfd, env))
