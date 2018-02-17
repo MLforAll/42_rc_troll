@@ -6,7 +6,7 @@
 /*   By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/17 00:53:17 by kdumarai          #+#    #+#             */
-/*   Updated: 2018/02/17 17:17:01 by kdumarai         ###   ########.fr       */
+/*   Updated: 2018/02/17 22:27:43 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <poll.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "server.h"

@@ -6,7 +6,7 @@
 /*   By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/17 01:05:22 by kdumarai          #+#    #+#             */
-/*   Updated: 2018/02/17 17:14:50 by kdumarai         ###   ########.fr       */
+/*   Updated: 2018/02/17 22:26:37 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 static void		print_output(int sockfd)
 {
 	char				*buff;
-	int 				count;
+	int					count;
 	int					tries;
 
 	count = 0;
@@ -46,26 +46,28 @@ static void		print_output(int sockfd)
 
 static int		send_msg(int sockfd)
 {
+	int					ret;
 	char				*msgi;
+	char				buffer[32];
 
+	if (recv(sockfd, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
+	{
+		ft_putendl_fd("Server kick ya out!", STDERR_FILENO);
+		return (FALSE);
+	}
+	ret = TRUE;
 	ft_putstr("$> ");
 	if (get_next_line(STDIN_FILENO, &msgi) > 0)
 	{
 		if (ft_strcmp(msgi, "exit") == 0)
-		{
-			ft_strdel(&msgi);
-			return (FALSE);
-		}
-		if (ft_strcmp(msgi, "") == 0)
+			ret = FALSE;
+		else if (ft_strcmp(msgi, "") == 0)
 			ft_putendl_fd("Not a suitable command!", STDERR_FILENO);
 		else
-		{
 			ft_putstr_fd(msgi, sockfd);
-			print_output(sockfd);
-		}
 	}
 	ft_strdel(&msgi);
-	return (TRUE);
+	return (ret);
 }
 
 static int		connect_socket(int sockfd, t_sockaddr_in *serv_addr)
@@ -91,11 +93,15 @@ int				main(int ac, char **av)
 {
 	int					sockfd;
 	t_sockaddr_in		serv_addr;
-	t_hostent	 		*server;
+	t_hostent			*server;
 
 	if (ac < 2)
-		return (ft_returnmsg("usage prgm hostname", STDERR_FILENO, \
-			EXIT_FAILURE));
+	{
+		ft_putstr_fd("usage: ", STDERR_FILENO);
+		ft_putstr_fd(av[0], STDERR_FILENO);
+		ft_putendl_fd(" hostname", STDERR_FILENO);
+		return (EXIT_FAILURE);
+	}
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		return (ft_returnmsg("Err socket", STDERR_FILENO, EXIT_FAILURE));
 	if (!(server = gethostbyname(av[1])))
@@ -106,7 +112,8 @@ int				main(int ac, char **av)
 	serv_addr.sin_port = htons(TROLL_PORT);
 	if (!connect_socket(sockfd, &serv_addr))
 		return (ft_returnmsg("Err connect", STDERR_FILENO, EXIT_FAILURE));
-	while (send_msg(sockfd));
+	while (send_msg(sockfd))
+		print_output(sockfd);
 	close(sockfd);
 	return (EXIT_SUCCESS);
 }
