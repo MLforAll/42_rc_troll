@@ -6,7 +6,7 @@
 /*   By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/17 01:05:22 by kdumarai          #+#    #+#             */
-/*   Updated: 2018/02/18 01:24:20 by kdumarai         ###   ########.fr       */
+/*   Updated: 2018/02/18 06:49:27 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,24 +47,25 @@ static void		print_output(int sockfd)
 static void		send_cmd(int sockfd, char *line)
 {
 	char	*cmd;
-	char	**comps;
+	char	*chk;
 
-	comps = ft_strsplit(line, ' ');
+	chk = ft_strchr(line, ' ');
 	if (ft_strstart(line, "chgwall"))
 	{
-		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to tell desktop 1 to set picture to \"");
-		ft_stradd(&cmd, comps[1]);
-		ft_stradd(&cmd, "\"'");
+		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to ");
+		ft_stradd(&cmd, "tell desktop 1 to set picture to ");
+		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
+		ft_stradd(&cmd, "'");
 	}
 	else if (ft_strstart(line, "setvol"))
 	{
-		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to set volume ");
-		ft_stradd(&cmd, comps[1]);
+		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to ");
+		ft_stradd(&cmd, "set volume ");
+		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
 		ft_stradd(&cmd, "'");
 	}
 	else
 		cmd = line;
-	ft_tabfree(&comps);
 	ft_putstr_fd(cmd, sockfd);
 	if (cmd && cmd != line)
 		free(cmd);
