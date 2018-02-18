@@ -6,7 +6,7 @@
 /*   By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/17 01:05:22 by kdumarai          #+#    #+#             */
-/*   Updated: 2018/02/17 22:26:37 by kdumarai         ###   ########.fr       */
+/*   Updated: 2018/02/18 01:24:20 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,32 @@ static void		print_output(int sockfd)
 	ft_strdel(&buff);
 }
 
+static void		send_cmd(int sockfd, char *line)
+{
+	char	*cmd;
+	char	**comps;
+
+	comps = ft_strsplit(line, ' ');
+	if (ft_strstart(line, "chgwall"))
+	{
+		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to tell desktop 1 to set picture to \"");
+		ft_stradd(&cmd, comps[1]);
+		ft_stradd(&cmd, "\"'");
+	}
+	else if (ft_strstart(line, "setvol"))
+	{
+		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to set volume ");
+		ft_stradd(&cmd, comps[1]);
+		ft_stradd(&cmd, "'");
+	}
+	else
+		cmd = line;
+	ft_tabfree(&comps);
+	ft_putstr_fd(cmd, sockfd);
+	if (cmd && cmd != line)
+		free(cmd);
+}
+
 static int		send_msg(int sockfd)
 {
 	int					ret;
@@ -64,7 +90,7 @@ static int		send_msg(int sockfd)
 		else if (ft_strcmp(msgi, "") == 0)
 			ft_putendl_fd("Not a suitable command!", STDERR_FILENO);
 		else
-			ft_putstr_fd(msgi, sockfd);
+			send_cmd(sockfd, msgi);
 	}
 	ft_strdel(&msgi);
 	return (ret);
