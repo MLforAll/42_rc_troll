@@ -6,7 +6,7 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/02/17 20:06:29 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/02/19 19:09:49 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ INCLUDES = includes/controller.h \
 			../includes/troll.h
 
 SRCDIR = srcs
-SRCFILES = controller_cli.c
+SRCFILES = controller_cli.c controller_cmds.c
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 NSRC = $(shell echo "$(SRCFILES)" | awk '{print NF}')
 CSRC = 1

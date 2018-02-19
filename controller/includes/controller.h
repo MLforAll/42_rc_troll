@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/* ******************************--------************************************ */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   controller.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: someone <someone@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/02/17 04:30:00 by kdumarai          #+#    #+#             */
-/*   Updated: 2018/02/17 22:28:52 by kdumarai         ###   ########.fr       */
+/*   Created: 2018/mm/dd hh:mm:ss by someone           #+#    #+#             */
+/*   Updated: 2018/mm/dd hh:mm:ss by someone          ###   ########.troll    */
 /*                                                                            */
-/* ************************************************************************** */
+/* ******************************--------************************************ */
 
 #ifndef CONTROLLER_H
 # define CONTROLLER_H
@@ -18,5 +18,7 @@
 # define CONTROLLER_LOGTIMEOUT	60
 
 typedef struct hostent	t_hostent;
+
+int				send_msg(int sockfd);
 
 #endif
