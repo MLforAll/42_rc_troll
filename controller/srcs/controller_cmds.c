@@ -29,6 +29,8 @@ static void		send_cmd(int sockfd, char *line)
 		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
 		ft_stradd(&cmd, "'");
 	}
+	else if (ft_strstart(line, "sleepdisp"))
+		cmd = ft_strdup("pmset displaysleepnow");
 	else if (ft_strstart(line, "setvol"))
 	{
 		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to ");
