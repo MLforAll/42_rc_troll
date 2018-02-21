@@ -46,6 +46,8 @@ static void		print_output(int sockfd)
 
 static void		show_retry_msg(int tries)
 {
+	if (tries > 1)
+		ft_putstr("\033[0A\033[K");
 	ft_putstr("Tying again (");
 	ft_putnbr(tries);
 	ft_putchar('/');
