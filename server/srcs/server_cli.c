@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ******************************--------************************************ */
 
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -20,6 +21,17 @@
 #include "server.h"
 #include "libft.h"
 #include "get_next_line.h"
+
+static void		launch_get_output(int infd, int outfd)
+{
+	int				args[2];
+	pthread_t		thread;
+
+	args[0] = infd;
+	args[1] = outfd;
+	pthread_create(&thread, NULL, &send_output, (void*)&args);
+	pthread_detach(thread);
+}
 
 static void		exec_command(char *msg, char **env, int outfd)
 {
@@ -44,8 +56,7 @@ static void		exec_command(char *msg, char **env, int outfd)
 	close(fd[1]);
 	close(fd[0]);
 	close(fd2[1]);
-	send_output(fd2[0], outfd);
-	wait(NULL);
+	launch_get_output(fd2[0], outfd);
 }
 
 static int		get_admin_message(int sockfd, int newsockfd, char **env)
