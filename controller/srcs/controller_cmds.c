@@ -57,7 +57,7 @@ int				send_msg(int sockfd)
 		return (FALSE);
 	}
 	ret = TRUE;
-	ft_putstr("\033[1;31mTrollSH \033[0;39m$ ");
+	ft_putstr("\033[1;31mTrollSH\033[0;39m$ ");
 	if (get_next_line(STDIN_FILENO, &msgi) > 0)
 	{
 		if (ft_strcmp(msgi, "exit") == 0)
