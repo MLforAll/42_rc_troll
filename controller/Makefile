@@ -6,7 +6,7 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/02/19 19:09:49 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/04/25 13:52:15 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME = troll_controller
 BIN = ../$(NAME)
 
 CC_FLAGS = -Wall -Werror -Wextra
-CC_LIB = -I includes -I ../libft
+CC_LIB = -I includes -I ../libft/includes
 LD_FLAGS = -L ../libft -lft
 
 LIBFT = ../libft/libft.a
