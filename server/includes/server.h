@@ -15,8 +15,8 @@
 
 # include "../../includes/troll.h"
 
-void	prepare_pipe_child(int fd[2], int fd2[2]);
 void	*send_output(void *);
 int		check_recv(int fd);
+void	exec_command(char *msg, int outfd);
 
 #endif

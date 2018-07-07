@@ -6,7 +6,7 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/04/25 13:52:15 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/07/07 02:24:35 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,10 +14,11 @@ NAME = troll_controller
 BIN = ../$(NAME)
 
 CC_FLAGS = -Wall -Werror -Wextra
-CC_LIB = -I includes -I ../libft/includes
-LD_FLAGS = -L ../libft -lft
+CC_LIB = -I includes -I ../libft/includes -I ../libftreadline/includes
+LD_FLAGS = -L ../libft -L ../libftreadline -lft -lftreadline -ltermcap
 
 LIBFT = ../libft/libft.a
+LIBFTREADLINE = ../libftreadline/libftreadline.a
 
 INCLUDES = includes/controller.h \
 			../includes/troll.h
@@ -38,7 +39,10 @@ all: $(BIN)
 $(LIBFT): force
 	@ make -C $(dir $(LIBFT))
 
-$(BIN): $(LIBFT) $(OBJS) $(INCLUDES)
+$(LIBFTREADLINE): force
+	@ make -C $(dir $(LIBFTREADLINE))
+
+$(BIN): $(LIBFT) $(LIBFTREADLINE) $(OBJS) $(INCLUDES)
 	@ printf "\033[K$(PROJTEXT)Compiling\n"
 	@ printf "$(PROJTEXT)Linking\n"
 	@ gcc -o $(BIN) $(LD_FLAGS) $(OBJS)
@@ -56,7 +60,7 @@ fsanitize:
 	@ printf "\r------------------------------\033[0;39m\n"
 	@ make all LD_FLAGS="$(LD_FLAGS) -fsanitize=address"
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCLUDES)
 	@ if [ ! -d $(dir $@) ]; then mkdir -p $(dir $@); fi
 	@ printf "\033[K$(PROJTEXT)Compiling \033[1;33m$<"
 	@ printf " %.0s" {1..$(shell expr 44 - $(shell printf "$<" | wc -m))}
@@ -64,19 +68,26 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@ $(eval CSRC = $(shell expr $(CSRC) + 1))
 	@ gcc $(CC_FLAGS) $(CC_LIB) -c $< -o $@
 
-clean:
+clean: cleanp
 	@ make clean -C $(dir $(LIBFT))
+
+cleanp:
 	@ rm -rf $(OBJDIR)
 	@ printf "$(PROJTEXT)Removed objects\n"
 
 fclean: clean
-	@ make fclean -C $(dir $(LIBFT))
 	@ rm -f $(BIN)
 	@ printf "$(PROJTEXT)Removed $(NAME)\n"
+
+fcleanp: cleanp
+	@ rm -f $(BIN)
+	@ printf "$(PROJTEXT)Removed $(NAME)\n"
+
+rep: fcleanp all
 
 re: fclean all
 
 force:
 	@ true
 
-.PHONY: all lib noflags fsanitize clean fclean re
+.PHONY: all lib noflags fsanitize clean fclean re cleanp fcleanp rep

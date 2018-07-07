@@ -1,7 +1,7 @@
 /* ******************************--------************************************ */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server_utils.c                                     :+:      :+:    :+:   */
+/*   server_cmd.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: someone <someone@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,30 +10,48 @@
 /*                                                                            */
 /* ******************************--------************************************ */
 
+#include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <fcntl.h>
+#include "server.h"
 #include "libft.h"
 
-void	*send_output(void *arg)
+static void		launch_get_output(int infd, int outfd)
 {
-	int			infd;
-	int			outfd;
-	char		buff[32];
-	ssize_t		rb;
+	int				args[2];
+	pthread_t		thread;
 
-	infd = ((int*)arg)[0];
-	outfd = ((int*)arg)[1];
-	while ((rb = read(infd, buff, sizeof(buff))) > 0)
-		write(outfd, buff, rb);
-	return (NULL);
+	args[0] = infd;
+	args[1] = outfd;
+	pthread_create(&thread, NULL, &send_output, (void*)&args);
+	pthread_detach(thread);
 }
 
-int		check_recv(int fd)
+void			exec_command(char *msg, int outfd)
 {
-	char		buffer[32];
+	extern char		**environ;
+	char			*bashav[4];
+	pid_t			pid;
+	int				fd[2];
 
-	if (recv(fd, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
-		return (TRUE);
-	return (FALSE);
+	bashav[0] = "bash";
+	bashav[1] = "-c";
+	bashav[2] = msg;
+	bashav[3] = NULL;
+	ft_putstr("Issued: ");
+	ft_putendl(msg);
+	pipe(fd);
+	if ((pid = fork()) == -1)
+		return ;
+	if (pid == 0)
+	{
+		close(fd[0]);
+		dup2(fd[1], STDOUT_FILENO);
+		dup2(fd[1], STDERR_FILENO);
+		execve("/bin/bash", bashav, environ);
+		exit(127);
+	}
+	close(fd[1]);
+	launch_get_output(fd[0], outfd);
 }

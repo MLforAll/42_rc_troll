@@ -13,8 +13,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include "libft.h"
-#include "get_next_line.h"
+#include "controller.h"
 
 static void		send_cmd(int sockfd, char *line)
 {
@@ -45,11 +44,12 @@ static void		send_cmd(int sockfd, char *line)
 		free(cmd);
 }
 
-int				send_msg(int sockfd)
+int				send_msg(int sockfd, t_rl_opts *opts)
 {
 	int					ret;
 	char				*msgi;
 	char				buffer[32];
+	const char			*prompt = "\033[1;31mTrollSH\033[0;39m$ ";
 
 	if (recv(sockfd, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
 	{
@@ -57,8 +57,7 @@ int				send_msg(int sockfd)
 		return (FALSE);
 	}
 	ret = TRUE;
-	ft_putstr("\033[1;31mTrollSH\033[0;39m$ ");
-	if (get_next_line(STDIN_FILENO, &msgi) > 0)
+	if ((msgi = ft_readline(prompt, opts, NULL)))
 	{
 		if (ft_strcmp(msgi, "exit") == 0)
 			ret = FALSE;
@@ -68,7 +67,7 @@ int				send_msg(int sockfd)
 			send_cmd(sockfd, msgi);
 	}
 	else
-		ft_putchar('\n');
+		return (FALSE);
 	ft_strdel(&msgi);
 	return (ret);
 }

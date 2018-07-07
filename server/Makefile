@@ -6,7 +6,7 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/04/25 13:52:27 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/07/07 02:16:04 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ INCLUDES = includes/server.h \
 		../includes/troll.h
 
 SRCDIR = srcs
-SRCFILES = server_cli.c server_utils.c
+SRCFILES = server_cli.c server_cmd.c server_utils.c
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 NSRC = $(shell echo "$(SRCFILES)" | awk '{print NF}')
 CSRC = 1
@@ -56,7 +56,7 @@ fsanitize:
 	@ printf "\r------------------------------\033[0;39m\n"
 	@ make all LD_FLAGS="$(LD_FLAGS) -fsanitize=address"
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCLUDES)
 	@ if [ ! -d $(dir $@) ]; then mkdir -p $(dir $@); fi
 	@ printf "\033[K$(PROJTEXT)Compiling \033[1;33m$<"
 	@ printf " %.0s" {1..$(shell expr 44 - $(shell printf "$<" | wc -m))}
@@ -64,19 +64,26 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@ $(eval CSRC = $(shell expr $(CSRC) + 1))
 	@ gcc $(CC_FLAGS) $(CC_LIB) -c $< -o $@
 
-clean:
+clean: cleanp
 	@ make clean -C $(dir $(LIBFT))
+
+cleanp:
 	@ rm -rf $(OBJDIR)
 	@ printf "$(PROJTEXT)Removed objects\n"
 
 fclean: clean
-	@ make fclean -C $(dir $(LIBFT))
 	@ rm -f $(BIN)
 	@ printf "$(PROJTEXT)Removed $(NAME)\n"
+
+fcleanp: cleanp
+	@ rm -f $(BIN)
+	@ printf "$(PROJTEXT)Removed $(NAME)\n"
+
+rep: fcleanp all
 
 re: fclean all
 
 force:
 	@ true
 
-.PHONY: all lib noflags fsanitize clean fclean re
+.PHONY: all lib noflags fsanitize clean fclean re cleanp fcleanp rep

