@@ -6,7 +6,7 @@
 /*   By: someone <someone@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/mm/dd hh:mm:ss by someone           #+#    #+#             */
-/*   Updated: 2018/mm/dd hh:mm:ss by someone          ###   ########.troll    */
+/*   Updated: 2018/07/09 17:02:13 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ******************************--------************************************ */
 
@@ -67,9 +67,9 @@ static int		connect_socket(char *hostname)
 		if (tries > 0)
 			show_retry_msg(tries);
 		if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-			return (ft_returnmsg("Err socket", STDERR_FILENO, EXIT_FAILURE));
+			return (ft_returnmsg("Err socket", STDERR_FILENO, FALSE));
 		if (!(server = gethostbyname(hostname)))
-			return (ft_returnmsg("No such host", STDERR_FILENO, EXIT_FAILURE));
+			return (ft_returnmsg("No such host", STDERR_FILENO, FALSE));
 		ft_bzero(&serv_addr, sizeof(t_sockaddr_in));
 		serv_addr.sin_family = AF_INET;
 		ft_memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
