@@ -44,7 +44,7 @@ static void		send_cmd(int sockfd, char *line)
 		free(cmd);
 }
 
-int				send_msg(int sockfd, t_rl_opts *opts)
+int				send_msg(int sockfd, t_rl_opts *opts, t_dlist **hist)
 {
 	int					ret;
 	char				*msgi;
@@ -57,8 +57,10 @@ int				send_msg(int sockfd, t_rl_opts *opts)
 		return (FALSE);
 	}
 	ret = TRUE;
-	if ((msgi = ft_readline(prompt, opts, NULL)))
+	if ((msgi = ft_readline(prompt, opts, *hist)))
 	{
+		if (*msgi != '\0')
+			ftrl_histadd(hist, msgi);
 		if (ft_strcmp(msgi, "exit") == 0)
 			ret = FALSE;
 		else if (ft_strcmp(msgi, "") == 0)

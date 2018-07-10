@@ -30,13 +30,13 @@ static void		print_output(int sockfd)
 	tries = -1;
 	while (!count && tries < 5)
 	{
-		ioctl(sockfd, FIONREAD, &count);
+		(void)ioctl(sockfd, FIONREAD, &count);
 		usleep(50000);
 		tries++;
 	}
 	if (!(buff = ft_strnew(count)))
 		return ;
-	read(sockfd, buff, count);
+	(void)read(sockfd, buff, count);
 	if (*buff)
 		ft_putstr(buff);
 	ft_strdel(&buff);
@@ -72,7 +72,7 @@ static int		connect_socket(char *hostname)
 			return (ft_returnmsg("No such host", STDERR_FILENO, FALSE));
 		ft_bzero(&serv_addr, sizeof(t_sockaddr_in));
 		serv_addr.sin_family = AF_INET;
-		ft_memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+		(void)ft_memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
 		serv_addr.sin_port = htons(TROLL_PORT);
 		if (connect(sockfd, (t_sockaddr*)&serv_addr, sizeof(t_sockaddr_in)) == 0)
 			return (sockfd);
@@ -87,6 +87,7 @@ int				main(int ac, char **av)
 {
 	int					sockfd;
 	t_rl_opts			opts;
+	t_dlist				*hist;
 
 	if (ac < 2)
 	{
@@ -102,10 +103,12 @@ int				main(int ac, char **av)
 	}
 	if (!(sockfd = connect_socket(av[1])))
 		return (ft_returnmsg("Err connect", STDERR_FILENO, EXIT_FAILURE));
+	hist = NULL;
 	ft_bzero(&opts, sizeof(t_rl_opts));
 	opts.bell = YES;
-	while (send_msg(sockfd, &opts))
+	while (send_msg(sockfd, &opts, &hist))
 		print_output(sockfd);
-	close(sockfd);
+	ft_dlstdel(&hist, &ftrl_histdelf);
+	(void)close(sockfd);
 	return (EXIT_SUCCESS);
 }

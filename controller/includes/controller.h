@@ -21,6 +21,6 @@
 
 typedef struct hostent	t_hostent;
 
-int						send_msg(int sockfd, t_rl_opts *opts);
+int						send_msg(int sockfd, t_rl_opts *opts, t_dlist **hist);
 
 #endif
