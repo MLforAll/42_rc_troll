@@ -61,8 +61,8 @@ static int		connect_socket(char *hostname)
 	t_hostent			*server;
 	int					tries;
 
-	tries = 0;
-	while (tries < CONTROLLER_LOGTIMEOUT)
+	tries = -1;
+	while (++tries < CONTROLLER_LOGTIMEOUT)
 	{
 		if (tries > 0)
 			show_retry_msg(tries);
@@ -72,41 +72,46 @@ static int		connect_socket(char *hostname)
 			return (ft_returnmsg("No such host", STDERR_FILENO, FALSE));
 		ft_bzero(&serv_addr, sizeof(t_sockaddr_in));
 		serv_addr.sin_family = AF_INET;
-		(void)ft_memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+		(void)ft_memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, \
+			server->h_length);
 		serv_addr.sin_port = htons(TROLL_PORT);
-		if (connect(sockfd, (t_sockaddr*)&serv_addr, sizeof(t_sockaddr_in)) == 0)
+		if (!connect(sockfd, (t_sockaddr*)&serv_addr, sizeof(t_sockaddr_in)))
 			return (sockfd);
-		tries++;
 	}
 	if (tries == CONTROLLER_LOGTIMEOUT)
 		return (FALSE);
 	return (sockfd);
 }
 
+static void		controller_usage(const char *app_name)
+{
+	ft_putstr_fd("usage: ", STDERR_FILENO);
+	ft_putstr_fd(app_name, STDERR_FILENO);
+	ft_putendl_fd(" hostname", STDERR_FILENO);
+	exit(EXIT_FAILURE);
+}
+
 int				main(int ac, char **av)
 {
 	int					sockfd;
 	t_rl_opts			opts;
+	t_uint8				interactive;
 	t_dlist				*hist;
 
 	if (ac < 2)
-	{
-		ft_putstr_fd("usage: ", STDERR_FILENO);
-		ft_putstr_fd(av[0], STDERR_FILENO);
-		ft_putendl_fd(" hostname", STDERR_FILENO);
-		return (EXIT_FAILURE);
-	}
+		controller_usage(av[0]);
 	if (!ft_strequ(getenv("TERM"), "xterm-256color"))
 	{
-		ft_putendl_fd("You must use xterm-256color!", STDERR_FILENO);
-		return (EXIT_FAILURE);
+		return (ft_returnmsg("You must use xterm-256color!",
+			STDERR_FILENO, EXIT_FAILURE));
 	}
 	if (!(sockfd = connect_socket(av[1])))
 		return (ft_returnmsg("Err connect", STDERR_FILENO, EXIT_FAILURE));
 	hist = NULL;
+	interactive = isatty(STDIN_FILENO);
 	ft_bzero(&opts, sizeof(t_rl_opts));
 	opts.bell = YES;
-	while (send_msg(sockfd, &opts, &hist))
+	while (send_msg(sockfd, &opts, &hist, interactive))
 		print_output(sockfd);
 	ft_dlstdel(&hist, &ftrl_histdelf);
 	(void)close(sockfd);

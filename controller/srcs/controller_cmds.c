@@ -44,20 +44,34 @@ static void		send_cmd(int sockfd, char *line)
 		free(cmd);
 }
 
-int				send_msg(int sockfd, t_rl_opts *opts, t_dlist **hist)
+t_uint8			get_line(char **msgi,
+						t_rl_opts *opts,
+						t_dlist *hist,
+						t_uint8 interactive)
+{
+	const char			*prompt = "\033[1;31mTrollSH\033[0;39m$ ";
+
+	if (interactive)
+	{
+		*msgi = ft_readline(prompt, opts, hist);
+		return ((*msgi != NULL));
+	}
+	return (get_next_line(STDIN_FILENO, msgi) > 0);
+}
+
+int				send_msg(int sockfd,
+						t_rl_opts *opts,
+						t_dlist **hist,
+						t_uint8 interactive)
 {
 	int					ret;
 	char				*msgi;
 	char				buffer[32];
-	const char			*prompt = "\033[1;31mTrollSH\033[0;39m$ ";
 
 	if (recv(sockfd, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
-	{
-		ft_putendl_fd("Server kick ya out!", STDERR_FILENO);
-		return (FALSE);
-	}
+		return (ft_returnmsg("Server kick ya out!", STDERR_FILENO, FALSE));
 	ret = TRUE;
-	if ((msgi = ft_readline(prompt, opts, *hist)))
+	if (get_line(&msgi, opts, *hist, interactive))
 	{
 		if (*msgi != '\0')
 			ftrl_histadd(hist, msgi);
