@@ -6,7 +6,7 @@
 /*   By: someone <someone@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/mm/dd hh:mm:ss by someone           #+#    #+#             */
-/*   Updated: 2018/mm/dd hh:mm:ss by someone          ###   ########.troll    */
+/*   Updated: 2018/07/26 21:22:20 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ******************************--------************************************ */
 
@@ -23,8 +23,8 @@ static void		send_cmd(int sockfd, char *line)
 	chk = ft_strchr(line, ' ');
 	if (ft_strstart(line, "chgwall"))
 	{
-		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to ");
-		ft_stradd(&cmd, "tell desktop 1 to set picture to ");
+		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to "
+						"tell desktop 1 to set picture to ");
 		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
 		ft_stradd(&cmd, "'");
 	}
@@ -32,11 +32,18 @@ static void		send_cmd(int sockfd, char *line)
 		cmd = ft_strdup("pmset displaysleepnow");
 	else if (ft_strstart(line, "setvol"))
 	{
-		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to ");
-		ft_stradd(&cmd, "set volume ");
+		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to "
+						"set volume ");
 		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
 		ft_stradd(&cmd, "'");
 	}
+	else if (ft_strstart(line, "blockvol"))
+		cmd = ft_strdup("while true; do osascript -e 'tell application "
+						"\"System Events\" to set volume 10'; done");
+	else if (ft_strstart(line, "forceout"))
+		cmd = ft_strdup("if [ ! -f $HOME/.brew/bin/SwitchAudioSource ]; then "
+				"echo 'Not there'; fi; while true; do "
+				"$HOME/.brew/bin/SwitchAudioSource -s 'Built-in Output' >/dev/null; done");
 	else
 		cmd = line;
 	ft_putstr_fd(cmd, sockfd);
