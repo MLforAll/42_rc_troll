@@ -15,12 +15,13 @@
 #include <sys/socket.h>
 #include "controller.h"
 
-static void		send_cmd(int sockfd, char *line)
+static char		*bltns_args(char *line)
 {
-	char	*cmd;
-	char	*chk;
+	const char	*chk;
+	char		*cmd;
 
 	chk = ft_strchr(line, ' ');
+	cmd = NULL;
 	if (ft_strstart(line, "chgwall"))
 	{
 		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to "
@@ -28,8 +29,6 @@ static void		send_cmd(int sockfd, char *line)
 		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
 		ft_stradd(&cmd, "'");
 	}
-	else if (ft_strstart(line, "sleepdisp"))
-		cmd = ft_strdup("pmset displaysleepnow");
 	else if (ft_strstart(line, "setvol"))
 	{
 		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to "
@@ -37,15 +36,28 @@ static void		send_cmd(int sockfd, char *line)
 		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
 		ft_stradd(&cmd, "'");
 	}
-	else if (ft_strstart(line, "blockvol"))
-		cmd = ft_strdup("while true; do osascript -e 'tell application "
-						"\"System Events\" to set volume 10'; done");
-	else if (ft_strstart(line, "forceout"))
-		cmd = ft_strdup("if [ ! -f $HOME/.brew/bin/SwitchAudioSource ]; then "
-				"echo 'Not there'; fi; while true; do "
-				"$HOME/.brew/bin/SwitchAudioSource -s 'Built-in Output' >/dev/null; done");
-	else
-		cmd = line;
+	return (cmd);
+}
+
+static void		send_cmd(int sockfd, char *line)
+{
+	char	*cmd;
+
+	if (!(cmd = bltns_args(line)))
+	{
+		if (ft_strstart(line, "sleepdisp"))
+			cmd = ft_strdup("pmset displaysleepnow");
+		else if (ft_strstart(line, "blockvol"))
+			cmd = ft_strdup("while true; do osascript -e 'tell application "
+							"\"System Events\" to set volume 10'; done");
+		else if (ft_strstart(line, "forceout"))
+			cmd = ft_strdup("if [ ! -f $HOME/.brew/bin/SwitchAudioSource ]; "
+					"then echo 'Not there'; fi; while true; do "
+			"$HOME/.brew/bin/SwitchAudioSource -s 'Built-in Output' >/dev/null;"
+			"done");
+		else
+			cmd = line;
+	}
 	ft_putstr_fd(cmd, sockfd);
 	if (cmd && cmd != line)
 		free(cmd);
