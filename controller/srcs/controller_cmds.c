@@ -63,17 +63,20 @@ static void		send_cmd(int sockfd, char *line)
 		free(cmd);
 }
 
-t_uint8			get_line(char **msgi,
+int				get_line(char **msgi,
 						t_rl_opts *opts,
 						t_dlist *hist,
 						t_uint8 interactive)
 {
 	const char			*prompt = "\033[1;31mTrollSH\033[0;39m$ ";
+	int					status;
 
 	if (interactive)
 	{
-		*msgi = ft_readline(prompt, opts, hist);
-		return ((*msgi != NULL));
+		if ((status = ft_readline(msgi, prompt, opts, hist)) == FTRL_OK
+			|| status == FTRL_SIGINT)
+			return (TRUE);
+		return (FALSE);
 	}
 	return (get_next_line(STDIN_FILENO, msgi) > 0);
 }
