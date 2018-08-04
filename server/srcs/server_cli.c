@@ -78,11 +78,12 @@ int				main(int ac, char **av)
 	if (ac > 1)
 		chdir(av[1]);
 	if ((g_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-		return (ft_returnmsg("Err socket", STDERR_FILENO, EXIT_FAILURE));
+		return (ft_returnmsg("Socket failure", STDERR_FILENO, EXIT_FAILURE));
 	setup_sockaddr(&serv_addr);
 	if (bind(g_sockfd, (t_sockaddr*)&serv_addr, sizeof(t_sockaddr_in)) == -1)
-		return (ft_returnmsg("Err bind", STDERR_FILENO, EXIT_FAILURE));
-	signal(SIGINT, &sigint_hdl);
+		return (ft_returnmsg("Bind error", STDERR_FILENO, EXIT_FAILURE));
+	(void)signal(SIGINT, &sigint_hdl);
+	(void)signal(SIGCHLD, &process_hdl);
 	ft_putendl("Waiting for someone to take access");
 	while (TRUE)
 	{

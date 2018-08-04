@@ -6,7 +6,7 @@
 /*   By: someone <someone@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/mm/dd hh:mm:ss by someone           #+#    #+#             */
-/*   Updated: 2018/mm/dd hh:mm:ss by someone          ###   ########.troll    */
+/*   Updated: 2018/08/04 04:41:05 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ******************************--------************************************ */
 
@@ -15,9 +15,43 @@
 #include <string.h>
 #include <unistd.h>
 #include "server.h"
+#include <signal.h>
 #include "libft.h"
 
-static void		launch_get_output(int infd, int outfd)
+pthread_mutex_t		g_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void			log_msg(pid_t pid, const char *act)
+{
+	ft_putstr("Program with pid: ");
+	ft_putnbr(pid);
+	ft_putstr(" got ");
+	ft_putendl(act);
+}
+
+void				process_hdl(int sigc)
+{
+	int		status;
+	pid_t	pid;
+
+	if (sigc != SIGCHLD)
+		return ;
+	(void)pthread_mutex_lock(&g_mutex);
+	if ((pid = waitpid(0, &status, WNOHANG | WUNTRACED)) > 0)
+	{
+		if (WIFSTOPPED(status))
+		{
+			if (KILL_LOG)
+				log_msg(pid, "killed");
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(0, NULL, WNOHANG);
+		}
+		else if (REAPED_LOG)
+			log_msg(pid, "reaped");
+	}
+	(void)pthread_mutex_unlock(&g_mutex);
+}
+
+static void			launch_get_output(int infd, int outfd)
 {
 	int				args[2];
 	pthread_t		thread;
@@ -28,7 +62,7 @@ static void		launch_get_output(int infd, int outfd)
 	pthread_detach(thread);
 }
 
-void			exec_command(char *msg, int outfd)
+void				exec_command(char *msg, int outfd)
 {
 	extern char		**environ;
 	char			*bashav[4];
