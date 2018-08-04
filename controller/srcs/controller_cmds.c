@@ -19,23 +19,21 @@ static char		*bltns_args(char *line)
 {
 	const char	*chk;
 	char		*cmd;
+	char		*post;
 
-	chk = ft_strchr(line, ' ');
-	cmd = NULL;
+	post = "'";
 	if (ft_strstart(line, "chgwall"))
-	{
 		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to "
 						"tell desktop 1 to set picture to ");
-		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
-		ft_stradd(&cmd, "'");
-	}
 	else if (ft_strstart(line, "setvol"))
-	{
 		cmd = ft_strdup("osascript -e 'tell application \"System Events\" to "
 						"set volume ");
-		ft_stradd(&cmd, (chk) ? chk + 1 : chk);
-		ft_stradd(&cmd, "'");
-	}
+	else
+		return (NULL);
+	if (!(chk = ft_strchr(line, ' ')))
+		ft_stradd(&cmd, chk + 1);
+	if (post)
+		ft_stradd(&cmd, post);
 	return (cmd);
 }
 
@@ -47,6 +45,10 @@ static void		send_cmd(int sockfd, char *line)
 	{
 		if (ft_strstart(line, "sleepdisp"))
 			cmd = ft_strdup("pmset displaysleepnow");
+		else if (ft_strstart(line, "instdeps"))
+			cmd = ft_strdup("curl -fsSL https://rawgit.com/kube/42homebrew"
+				"/master/install.sh | zsh"
+				" && ./.brew/bin/brew install switchaudio-osx");
 		else if (ft_strstart(line, "blockvol"))
 			cmd = ft_strdup("while true; do osascript -e 'tell application "
 							"\"System Events\" to set volume 10'; done");
