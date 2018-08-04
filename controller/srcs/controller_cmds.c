@@ -30,7 +30,7 @@ static char		*bltns_args(char *line)
 						"set volume ");
 	else
 		return (NULL);
-	if (!(chk = ft_strchr(line, ' ')))
+	if ((chk = ft_strchr(line, ' ')))
 		ft_stradd(&cmd, chk + 1);
 	if (post)
 		ft_stradd(&cmd, post);
