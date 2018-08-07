@@ -6,7 +6,7 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/07/07 02:24:35 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/08/07 20:05:13 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,9 @@ CC_LIB = -I includes -I ../libft/includes -I ../libftreadline/includes
 LD_FLAGS = -L ../libft -L ../libftreadline -lft -lftreadline -ltermcap
 
 LIBFT = ../libft/libft.a
+LIBFTDIR = $(shell dirname $(LIBFT))
 LIBFTREADLINE = ../libftreadline/libftreadline.a
+LIBFTREADLINEDIR = $(shell dirname $(LIBFTREADLINE))
 
 INCLUDES = includes/controller.h \
 			../includes/troll.h
@@ -36,10 +38,20 @@ PROJTEXT = \033[1;36m$(NAME): \033[0;39m
 
 all: $(BIN)
 
-$(LIBFT): force
+$(LIBFTDIR):
+	@ if [ -h "$(LIBFTDIR)" ]; then rm "$(LIBFTDIR)"; fi
+	@ echo "$(PROJTEXT)Missing libft... Cloning..."
+	@ git clone https://github.com/MLforAll/42Libft libft
+
+$(LIBFT): $(LIBFTDIR) force
 	@ make -C $(dir $(LIBFT))
 
-$(LIBFTREADLINE): force
+$(LIBFTREADLINEDIR):
+	@ if [ -h "$(LIBFTREADLINEDIR)" ]; then rm "$(LIBFTREADLINEDIR)"; fi
+	@ echo "$(PROJTEXT)Missing libftreadline... Cloning..."
+	@ git clone https://github.com/MLforAll/libftreadline
+
+$(LIBFTREADLINE): $(LIBFTREADLINEDIR) force
 	@ make -C $(dir $(LIBFTREADLINE))
 
 $(BIN): $(LIBFT) $(LIBFTREADLINE) $(OBJS) $(INCLUDES)
