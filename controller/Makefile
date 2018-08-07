@@ -6,7 +6,7 @@
 #    By: kdumarai <kdumarai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/20 21:41:19 by kdumarai          #+#    #+#              #
-#    Updated: 2018/08/07 20:05:13 by kdumarai         ###   ########.fr        #
+#    Updated: 2018/08/07 20:09:15 by kdumarai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ all: $(BIN)
 $(LIBFTDIR):
 	@ if [ -h "$(LIBFTDIR)" ]; then rm "$(LIBFTDIR)"; fi
 	@ echo "$(PROJTEXT)Missing libft... Cloning..."
-	@ git clone https://github.com/MLforAll/42Libft libft
+	@ git clone https://github.com/MLforAll/42Libft $(LIBFTDIR)
 
 $(LIBFT): $(LIBFTDIR) force
 	@ make -C $(dir $(LIBFT))
@@ -49,7 +49,7 @@ $(LIBFT): $(LIBFTDIR) force
 $(LIBFTREADLINEDIR):
 	@ if [ -h "$(LIBFTREADLINEDIR)" ]; then rm "$(LIBFTREADLINEDIR)"; fi
 	@ echo "$(PROJTEXT)Missing libftreadline... Cloning..."
-	@ git clone https://github.com/MLforAll/libftreadline
+	@ git clone https://github.com/MLforAll/libftreadline $(LIBFTREADLINEDIR)
 
 $(LIBFTREADLINE): $(LIBFTREADLINEDIR) force
 	@ make -C $(dir $(LIBFTREADLINE))
