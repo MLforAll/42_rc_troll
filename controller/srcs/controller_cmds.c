@@ -54,7 +54,7 @@ static void		send_cmd(int sockfd, char *line)
 							"\"System Events\" to set volume 10'; done");
 		else if (ft_strstart(line, "forceout"))
 			cmd = ft_strdup("if [ ! -f $HOME/.brew/bin/SwitchAudioSource ]; "
-					"then echo 'Not there'; fi; while true; do "
+					"then echo 'Not there'; exit 0; fi; while true; do "
 			"$HOME/.brew/bin/SwitchAudioSource -s 'Built-in Output' >/dev/null;"
 			"done");
 		else

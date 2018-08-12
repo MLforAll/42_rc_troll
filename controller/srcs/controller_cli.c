@@ -6,7 +6,7 @@
 /*   By: someone <someone@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/mm/dd hh:mm:ss by someone           #+#    #+#             */
-/*   Updated: 2018/07/09 17:02:13 by kdumarai         ###   ########.fr       */
+/*   Updated: 2018/08/12 14:49:56 by kdumarai         ###   ########.fr       */
 /*                                                                            */
 /* ******************************--------************************************ */
 
@@ -110,7 +110,7 @@ int				main(int ac, char **av)
 	hist = NULL;
 	interactive = isatty(STDIN_FILENO);
 	ft_bzero(&opts, sizeof(t_rl_opts));
-	opts.bell = YES;
+	opts.tbell = YES;
 	while (send_msg(sockfd, &opts, &hist, interactive))
 		print_output(sockfd);
 	ft_dlstdel(&hist, &ftrl_histdelf);
